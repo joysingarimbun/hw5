@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrasi dan List Pendaftar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="tab">
+      <button class="tablinks" onclick="openTab(event, 'Registrasi')">Registrasi</button>
+      <button class="tablinks" onclick="openTab(event, 'ListPendaftar')">List Pendaftar</button>
+    </div>
+
+    <div id="Registrasi" class="tabcontent">
+      <h2>Form Registrasi</h2>
+      <form id="registrationForm">
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" name="nama" minlength="10" placeholder="Nama minimal 10 Karakter..." required />
+
+        <label for="umur">Umur:</label>
+        <input type="number" id="umur" name="umur" min="25" placeholder="Umur minimal 25 Tahun..." required />
+
+        <label for="uang">Uang Sangu (Rp.):</label>
+        <input type="number" id="uang" name="uang" min="100000" max="1000000" placeholder="Uang Sangu Minimal Rp.100000..." required />
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <div id="ListPendaftar" class="tabcontent">
+      <h2>List Pendaftar</h2>
+      <p>Rata-rata pendaftar memiliki uang saku sebesar <span id="averageUangSaku"></span> dengan rata-rata umur <span id="averageUmur"></span></p>
+      <table id="pendaftarTable">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Umur</th>
+            <th>Uang Sangu (Rp.)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data pendaftar akan ditampilkan di sini -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      document.querySelector("#registrationForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const nama = document.querySelector("#nama").value;
+        const umur = parseInt(document.querySelector("#umur").value);
+        const uang = parseInt(document.querySelector("#uang").value);
+
+        if (nama.length < 10 || umur < 25 || uang < 100000 || uang > 1000000) {
+          alert("Data tidak memenuhi kriteria.");
+          return;
+        }
+
+        addPendaftar(nama, umur, uang);
+        displayPendaftar();
+        this.reset();
+      });
+      function openTab(event, tabName) {
+        const tabcontent = document.querySelectorAll(".tabcontent");
+        tabcontent.forEach((tab) => (tab.style.display = "none"));
+
+        const tablinks = document.querySelectorAll(".tablinks");
+        tablinks.forEach((tablink) => tablink.classList.remove("active"));
+
+        document.getElementById(tabName).style.display = "block";
+        event.currentTarget.classList.add("active");
+
+        if (tabName === "ListPendaftar") {
+          displayPendaftar();
+        }
+      }
+      document.querySelector(".tablinks").click();
+
+      class Pendaftar {
+        constructor(nama, umur, uang) {
+          this.nama = nama;
+          this.umur = umur;
+          this.uang = uang;
+        }
+      }
+      const pendaftarList = [];
+      function addPendaftar(nama, umur, uang) {
+        const pendaftar = new Pendaftar(nama, umur, uang);
+        pendaftarList.push(pendaftar);
+      }
+      function displayPendaftar() {
+        const tableBody = document.querySelector("#pendaftarTable tbody");
+        tableBody.innerHTML = "";
+
+        pendaftarList.forEach((pendaftar) => {
+          const row = tableBody.insertRow();
+          const cellNama = row.insertCell(0);
+          const cellUmur = row.insertCell(1);
+          const cellUang = row.insertCell(2);
+
+          cellNama.textContent = pendaftar.nama;
+          cellUmur.textContent = pendaftar.umur;
+          cellUang.textContent = pendaftar.uang;
+        });
+
+        const { averageUmur, averageUangSaku } = calculateAverages();
+        document.querySelector("#averageUmur").textContent = averageUmur.toFixed(2);
+        document.querySelector("#averageUangSaku").textContent = averageUangSaku.toFixed(2);
+      }
+      function calculateAverages() {
+        if (pendaftarList.length === 0) {
+          return { averageUmur: 0, averageUangSaku: 0 };
+        }
+
+        const totalUmur = pendaftarList.reduce((sum, pendaftar) => sum + pendaftar.umur, 0);
+        const totalUangSaku = pendaftarList.reduce((sum, pendaftar) => sum + pendaftar.uang, 0);
+
+        const averageUmur = totalUmur / pendaftarList.length;
+        const averageUangSaku = totalUangSaku / pendaftarList.length;
+
+        return { averageUmur, averageUangSaku };
+      }
+    </script>
+  </body>
+</html>
